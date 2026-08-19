@@ -12,7 +12,7 @@ export default function StartPage() {
                 <Navbar></Navbar>
             </header>
 
-            <main className="flex gap-55 p-15">
+            {/* <main className="flex gap-55 p-15">
                 <div className="min-h-screen md:w-1/2 border">
                     Left Side
                 </div>
@@ -27,7 +27,7 @@ export default function StartPage() {
                         </span>
                     </div>
                 </div>
-            </main>
+            </main> */}
 
         </div>
 
