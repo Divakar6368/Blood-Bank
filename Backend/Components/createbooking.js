@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const book = require('../Model/booking');
+const Booking=require('../Model/Bookingdata')
 const Sample = require('../Model/sampleavailable');
 const User = require('../Model/user');
 const admin = require('../Model/Admindata');
 
-const createBooking = async (req, res) => {
+const createBooking  = async (req, res) => {
     const session = await mongoose.startSession();
     session.startTransaction();
 
@@ -56,18 +56,20 @@ const createBooking = async (req, res) => {
             await Sample.findByIdAndUpdate(sampleId, { Avilability: false }, { session });
         }
 
-        // 2. Create Booking document
-        const [newBooking] = await book.create(
+        // 2. Create Booking  document
+        const [newBooking] = await Booking .create(
             [
                 {
                     userId: userId,
+                    adminId: storeId,
+                    sampleId: sampleId,
                     quantity: parsedQty
                 }
             ],
             { session }
         );
 
-        // 3. Link booking to User model
+        // 3. Link Booking  to User model
         await User.findByIdAndUpdate(
             userId,
             { $addToSet: { Bookings: newBooking._id } },
@@ -83,7 +85,7 @@ const createBooking = async (req, res) => {
         await admin.findByIdAndUpdate(
             storeId,
             {
-                $addToSet: { pending: newBooking._id },
+                $addToSet: { pending: newBooking ._id },
                 $inc: { 
                     totalsale: parsedQty, 
                     totalearning: totalCost 
@@ -96,18 +98,18 @@ const createBooking = async (req, res) => {
         session.endSession();
 
         return res.status(201).json({
-            message: "Booking successfully created",
+            message: "Booking  successfully created",
             booking: newBooking,
             remainingStock: sampleDoc.TotalStock
         });
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
-        return res.status(500).json({ message: "Booking transaction failed", error: error.message });
+        return res.status(500).json({ message: "Booking  transaction failed", error: error.message });
     }
 };
 
-const getUserBookings = async (req, res) => {
+const getUserBooking = async (req, res) => {
     try {
         const userId = req.user?._id || req.result?._id || req.result?._conditions?._id || req.userId;
         if (!userId) {
@@ -123,10 +125,10 @@ const getUserBookings = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        return res.status(200).json({ data: userData.Bookings });
+        return res.status(200).json({ data: userData.Bookings});
     } catch (error) {
-        return res.status(500).json({ message: "Error fetching bookings", error: error.message });
+        return res.status(500).json({ message: "Error fetching Booking s", error: error.message });
     }
 };
 
-module.exports = { createBooking, getUserBookings };
+module.exports = { createBooking , getUserBooking };
