@@ -30,23 +30,46 @@ const setstoredata = async (req, res) => {
 };
 
 const storeinfo = async (req, res) => {
-    try {
-        const userId = req.user?._id || req.result?._id || req.result?._conditions?._id || req.userId;
+  try {
+    const userId = req.user?._id || req.result?._id || req.result?._conditions?._id || req.userId;
 
-        if (!userId) {
-            return res.status(401).json({ message: "Unauthorized: User ID not found in request" });
-        }
-
-        const store = await admin.findOne({ userId }).populate('AvailableSamples pending');
-
-        if (!store) {
-            return res.status(404).json({ message: "Store profile not found for this admin" });
-        }
-
-        return res.status(200).json({ data: store });
-    } catch (error) {
-        return res.status(500).json({ message: "Server error", error: error.message });
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized: User ID not found in request",
+      });
     }
+
+    const store = await admin
+      .findOne({ userId })
+      .populate("AvailableSamples")
+    //   .populate({
+    //     path: "pending",
+    //     populate: {
+    //       path: "userId sampleId", 
+    //       select: "Name emailId BloodGroupPrice",
+    //     },
+    //   })
+      .lean();
+
+    if (!store) {
+      return res.status(404).json({
+        success: false,
+        message: "Store profile not found for this admin",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: store,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message,
+    });
+  }
 };
 
 
@@ -117,8 +140,8 @@ const updatesample = async (req, res) => {
 const getsampleinfo = async (req, res) => {
     try {
         const { id } = req.params; // sampleId 
-
-        const singleSample = await Sample.findById(id);
+       
+        const singleSample = await Sample.find({ storeId: id });
         if (singleSample) {
             return res.status(200).json({ data: singleSample });
         }
@@ -135,4 +158,4 @@ const getsampleinfo = async (req, res) => {
     }
 };
 
-module.exports={setstoredata,storeinfo,setsample,updatesample}
+module.exports={setstoredata,storeinfo,setsample,updatesample, getsampleinfo }

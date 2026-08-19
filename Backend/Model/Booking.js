@@ -8,6 +8,16 @@ const BookingSchema = new Schema(
       ref: "user",
       required: true,
     },
+    adminId: {
+      type: Schema.Types.ObjectId,
+      ref: "admin",
+      required: true,
+    },
+    sampleId: {
+      type: Schema.Types.ObjectId,
+      ref: "samples",
+      required: true,
+    },
     quantity: {
       type: Number,
       required: true,
@@ -17,11 +27,16 @@ const BookingSchema = new Schema(
       validate: {
         validator: Number.isInteger,
         message: "{VALUE} is not an integer value",
-      }
-    }
+      },
+    },
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected", "completed"],
+      default: "pending",
+    },
   },
   { timestamps: true }
 );
 
-const book = mongoose.model("booking", BookingSchema);
-module.exports = book;
+const Booking = mongoose.model("booking", BookingSchema);
+module.exports = Booking;

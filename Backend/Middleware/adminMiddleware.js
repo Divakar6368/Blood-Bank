@@ -1,3 +1,6 @@
+const jwt=require('jsonwebtoken');
+const User=require('../Model/user')
+const redisClient=require('../config/redis')
 const adminMiddleware=async(req,res,next)=>{
     try {
         const {token}=req.cookies;
