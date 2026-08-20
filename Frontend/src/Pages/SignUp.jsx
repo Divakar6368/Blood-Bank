@@ -3,8 +3,9 @@ import { useForm } from 'react-hook-form';
 import {z} from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod';
 import {useDispatch,useSelector} from 'react-redux';
-import { registerUser } from '../../authSlice';
+
 import { useNavigate ,NavLink} from 'react-router';
+import { registerUser } from '../../authslice';
 
 const signupSchema = z.object({
   Name: z.string().min(3, "Minimum character should be 3"),
