@@ -1,115 +1,188 @@
-import { z } from 'zod'
-import { zodResolver } from "@hookform/resolvers/zod";
+
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useEffect } from 'react';
-import { loginUser } from '../../authslice';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, NavLink } from 'react-router';
-import { useState } from 'react';
+import z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, NavLink } from "react-router";
+import { loginUser } from "../../authslice";
+import { Droplet, Eye, EyeOff, ShieldCheck, User, Lock, Mail, ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const loginSchema = z.object({
-    emailId: z.string().email("Invalid Email"),
-    Password: z.string().min(8, "Weak Password")
-})
-
+ const loginSchema = z.object({
+  emailId: z.string().email("Invalid Email address"),
+  Password: z.string().min(8, "Password must be at least 8 characters"),
+  role: z.enum(["user", "admin"]).default("user"),
+});
 
 export function Login() {
-    const [showPassword, setShowPassword] = useState(false);
-    const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({ resolver: zodResolver(loginSchema) });
+  const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState("user"); 
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            navigate('/home');
-        }
-    }, [isAuthenticated, navigate]);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isAuthenticated, loading, error, user } = useSelector((state) => state.auth);
 
-    const onSubmit = (data) => {
-        dispatch(loginUser(data));
-    };
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { role: "user" },
+  });
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/home");
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
-    return(
-         <div className="min-h-screen flex items-center justify-center p-4 bg-base-200"> 
-        <div className="card w-96 bg-base-100 shadow-xl">
-          <div className="card-body">
-            <h2 className="card-title justify-center text-3xl mb-6">CodeX</h2> 
-  
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="form-control"> 
-                <label className="label"> 
-                  <span className="label-text">Email</span>
-                </label>
-                <input
-                  type="email"
-                  placeholder="john@example.com"
-                  className={`input input-bordered w-full ${errors.emailId ? 'input-error' : ''}`} 
-                  {...register('emailId')}
-                />
-                {errors.emailId && (
-                  <span className="text-error text-sm mt-1">{errors.emailId.message}</span>
-                )}
-              </div>
-  
-              <div className="form-control mt-4">
-                <label className="label">
-                  <span className="label-text">Password</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    placeholder="••••••••"
-                    className={`input input-bordered w-full pr-10 ${errors.Password ? 'input-error' : ''}`}
-                    {...register('Password')}
-                  />
-                  <button
-                    type="button"
-                    className="absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                    onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                  >
-                    {showPassword ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                      </svg>
-                    ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-                {errors.Password && (
-                  <span className="text-error text-sm mt-1">{errors.Password.message}</span>
-                )}
-              </div>
-  
-              <div className="form-control mt-8 flex justify-center">
-                <button
-                  type="submit"
-                  className={`btn btn-primary ${loading ? 'loading btn-disabled' : ''}`} 
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="loading loading-spinner"></span>
-                      Logging in...
-                    </>
-                  ) : 'Login'}
-                </button>
-              </div>
-            </form>
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
+    setValue("role", role);
+  };
+
+  const onSubmit = (data) => {
+    dispatch(loginUser(data));
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 relative overflow-hidden">
+      {/* Background Decorative Gradient Blobs */}
+      <div className="absolute -top-20 -left-20 w-80 h-80 bg-red-100 rounded-full blur-3xl -z-10" />
+      <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-red-200/50 rounded-full blur-3xl -z-10" />
+
+      <NavLink
+        to="/"
+        className="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-red-600 transition-colors"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to Home
+      </NavLink>
+
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+     
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-12 h-12 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-red-200 mb-3">
+            <Droplet className="w-6 h-6 fill-current" />
           </div>
+          <h2 className="text-2xl font-black text-gray-900">Welcome Back</h2>
+          <p className="text-sm text-gray-500 mt-1">Access your BloodBank portal</p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-2xl mb-6">
+          <button
+            type="button"
+            onClick={() => handleRoleChange("user")}
+            className={`flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-xl transition-all ${
+              selectedRole === "user"
+                ? "bg-white text-red-600 shadow-sm"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <User className="w-4 h-4" /> Donor / User
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleRoleChange("admin")}
+            className={`flex items-center justify-center gap-2 py-2.5 text-sm font-bold rounded-xl transition-all ${
+              selectedRole === "admin"
+                ? "bg-red-600 text-white shadow-sm"
+                : "text-gray-500 hover:text-gray-900"
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" /> Admin Portal
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm font-medium text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <input type="hidden" {...register("role")} />
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                placeholder="john@example.com"
+                className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
+                  errors.emailId
+                    ? "border-red-500 focus:ring-2 focus:ring-red-200"
+                    : "border-gray-200 focus:border-red-600 focus:bg-white"
+                }`}
+                {...register("emailId")}
+              />
+            </div>
+            {errors.emailId && (
+              <span className="text-red-500 text-xs mt-1 block font-medium">
+                {errors.emailId.message}
+              </span>
+            )}
+          </div>
+          <div>
+            <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
+              Password
+            </label>
+            <div className="relative">
+              <Lock className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                className={`w-full pl-11 pr-11 py-3 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
+                  errors.Password
+                    ? "border-red-500 focus:ring-2 focus:ring-red-200"
+                    : "border-gray-200 focus:border-red-600 focus:bg-white"
+                }`}
+                {...register("Password")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+            {errors.Password && (
+              <span className="text-red-500 text-xs mt-1 block font-medium">
+                {errors.Password.message}
+              </span>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-6 rounded-full font-bold text-base shadow-lg transition-all ${
+              selectedRole === "admin"
+                ? "bg-gray-900 hover:bg-black text-white shadow-gray-200"
+                : "bg-red-600 hover:bg-red-700 text-white shadow-red-200"
+            }`}
+          >
+            {loading ? "Authenticating..." : `Log In as ${selectedRole === "admin" ? "Admin" : "User"}`}
+          </Button>
+        </form>
+
+        <div className="mt-6 text-center text-sm text-gray-600">
+          Don't have an account?{" "}
+          <NavLink to="/signup" className="text-red-600 font-bold hover:underline">
+            Be Our Family (Sign Up)
+          </NavLink>
         </div>
       </div>
-    )
-
-
+    </div>
+  );
 }

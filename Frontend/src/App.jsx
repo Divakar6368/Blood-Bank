@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router'
+import { Navigate, Route, Routes } from 'react-router'
 import StartPage from './Pages/startpage'
 import { useDispatch, useSelector } from 'react-redux';
 import { SignUp } from './Pages/SignUp';
