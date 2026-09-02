@@ -1,11 +1,13 @@
 const express=require('express');
 const adminMiddleware=require('../Middleware/adminMiddleware')
-const {setstoredata,storeinfo,setsample,updatesample, getsampleinfo}=require('../Components/adminpanel')
+const {setstoredata,storeinfo,setsample,updatesample, getsampleinfo, storeforuser}=require('../Components/adminpanel');
+const userMiddleware = require('../Middleware/userMiddleware');
 const adminRoute=express.Router();
 
 
 adminRoute.post('/setstore',adminMiddleware,setstoredata);
 adminRoute.get('/storeinfo',adminMiddleware,storeinfo);
+adminRoute.get('/storeinfoforuser',userMiddleware,storeforuser);
 adminRoute.post('/setsample/:id',adminMiddleware,setsample);
 adminRoute.put('/updatestock/:id',adminMiddleware,updatesample);
 adminRoute.get('/getsample/:id',adminMiddleware,getsampleinfo);

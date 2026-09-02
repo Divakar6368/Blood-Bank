@@ -72,6 +72,29 @@ const storeinfo = async (req, res) => {
   }
 };
 
+const storeforuser=async(req,res)=>{
+    try {
+    const stores = await admin.find({})
+      .select("StoreName StoreLocation description AvailableSamples rating openAt closeAt")
+      .populate({
+        path: "AvailableSamples",
+        select: "BloodGroup Price  Avilability Discount",
+      })
+      .lean();
+
+    return res.status(200).json({
+      success: true,
+      count: stores.length,
+      data: stores,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch stores",
+      error: error.message,
+    });
+ }
+}
 
 const setsample = async (req, res) => {
     try {
@@ -158,4 +181,4 @@ const getsampleinfo = async (req, res) => {
     }
 };
 
-module.exports={setstoredata,storeinfo,setsample,updatesample, getsampleinfo }
+module.exports={setstoredata,storeinfo,setsample,updatesample, getsampleinfo,storeforuser }
