@@ -16,9 +16,16 @@ const setmedicalinfo = async (req, res) => {
 
     const { BloodGroup, Age, Anydisease } = req.body;
 
-    const healthDoc = await Health.findOneAndUpdate(
+     const healthDoc = await Health.findOneAndUpdate(
       { userId },
-      { BloodGroup, Age, Anydisease, userId },
+      {
+        $set: {
+          userId,
+          BloodGroup,
+          Age: Number(Age),
+          Anydisease: Anydisease || "None",
+        },
+      },
       {
         new: true,
         upsert: true,
@@ -26,8 +33,18 @@ const setmedicalinfo = async (req, res) => {
         setDefaultsOnInsert: true,
       }
     );
-
-    await User.findByIdAndUpdate(userId, { MedicalInfo: healthDoc._id });
+   await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          MedicalInfo: healthDoc._id,
+        },
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     return res.status(200).json({
       message: "Medical info saved successfully",
@@ -40,7 +57,10 @@ const setmedicalinfo = async (req, res) => {
 
 const getmedicalinfo = async (req, res) => {
   try {
-    const userId = req.result._conditions._id;
+    const userId =   req.user?._id ||
+      req.result?._id ||
+      req.result?._conditions?._id ||
+      req.userId;
     if (!userId) {
       return res
         .status(401)
@@ -50,13 +70,11 @@ const getmedicalinfo = async (req, res) => {
       path: "MedicalInfo",
       select: "BloodGroup Age Anydisease",
     });
-    if (!user.MedicalInfo) {
-      return res
-        .status(404)
-        .json({ message: "Medical info not found for this user" });
+    if (!user) {
+      return res.status(404).json({ message: "User account not found" });
     }
     return res.status(200).json({
-      data: user.MedicalInfo,
+      data: user.MedicalInfo || null,
     });
   } catch (error) {
     res.status(500).send("Error: " + error);

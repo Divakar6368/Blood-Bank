@@ -9,8 +9,8 @@ const userMiddleware=async(req,res,next)=>{
         const payload=jwt.verify(token,process.env.JWT_KEY);
         const {_id}=payload;
         if(!_id)
-            throw new Error("Invalid User")
-        const result=User.findById(_id);
+            throw new Error("Invalid User");
+        const result=await User.findById(_id);
         if(!result){
             throw new Error("User Doesn't Exist");
         }

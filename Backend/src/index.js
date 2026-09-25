@@ -22,7 +22,8 @@ app.use(cors({
 app.use('/user',userRouter);
 app.use('/info',medicalRouter);
 app.use('/admin',adminRoute);
-app.use('/item',bookingrouter)
+app.use('/item',bookingrouter);
+
 
 
 

@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axiosClient from "../../../Utils/axiosclient";
+import { getstoreinformation } from "../../../storeslice";
 import { 
   Building2, 
   MapPin, 
@@ -13,38 +14,27 @@ import {
   ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, NavLink } from "react-router";
 
 export function Herohome() {
+  const dispatch=useDispatch();
+  const {info,loading,error}= useSelector((state)=>state.str);
   const [stores, setStores] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  console.log(stores)
+  console.log(info)
 
  useEffect(() => {
-  const fetchStores = async () => {
-    try {
-      const response = await axiosClient.get("/admin/storeinfoforuser");
-      
-      if (response.data?.success) {
-        setStores(response.data.data);
-      }
-    } catch (error) {
-      console.error("Error fetching stores:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  fetchStores();
+  dispatch(getstoreinformation());
 }, []);
 
-  // Helper function to check if a store is currently open
   const isStoreOpen = (openAt, closeAt) => {
     const currentHour = new Date().getHours();
     return currentHour >= openAt && currentHour < closeAt;
   };
 
-  const filteredStores = stores.filter(
+  const filteredStores = info?.filter(
     (store) =>
       store.StoreName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       store.StoreLocation.toLowerCase().includes(searchQuery.toLowerCase())
@@ -96,7 +86,7 @@ export function Herohome() {
           <div className="flex justify-between items-center px-1">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
               <Building2 className="w-5 h-5 text-red-600" />
-              Available Stores ({filteredStores.length})
+              Available Stores ({filteredStores?.length})
             </h2>
           </div>
 
@@ -106,13 +96,13 @@ export function Herohome() {
                 <div key={n} className="h-64 bg-gray-200/60 rounded-3xl animate-pulse" />
               ))}
             </div>
-          ) : filteredStores.length === 0 ? (
+          ) : filteredStores?.length === 0 ? (
             <div className="text-center py-12 bg-white rounded-3xl border border-gray-100 text-gray-500">
               No stores found matching your criteria.
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredStores.map((store) => {
+              {filteredStores?.map((store) => {
                 const isOpen = isStoreOpen(store.openAt, store.closeAt);
 
                 return (
@@ -202,9 +192,12 @@ export function Herohome() {
 
                     {/* Action Button */}
                     <div className="pt-6 mt-4 border-t border-gray-100">
-                      <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-5 rounded-2xl shadow-md shadow-red-100 flex items-center justify-center gap-2">
+                      <NavLink to={`/store/${store._id}`}>
+                       <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-5 rounded-2xl shadow-md shadow-red-100 flex items-center justify-center gap-2">
                         View Samples <ArrowRight className="w-4 h-4" />
                       </Button>
+                      </NavLink>
+                     
                     </div>
                   </motion.div>
                 );

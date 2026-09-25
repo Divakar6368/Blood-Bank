@@ -1,4 +1,3 @@
-// src/pages/SignUp.jsx
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -6,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, NavLink } from "react-router";
 import z from "zod";
 import { registerUser, adminRegister }  from "../../authslice";
-import { Droplet, Eye, EyeOff, ShieldCheck, User, Lock, Mail, Key, ArrowLeft } from "lucide-react";
+import { Droplet, Eye, EyeOff, ShieldCheck, User, Lock, Mail, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const signupSchema = z.object({
@@ -195,33 +194,7 @@ export function SignUp() {
               </span>
             )}
           </div>
-
-          {selectedRole === "admin" && (
-            <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1">
-                Admin Secret Key
-              </label>
-              <div className="relative">
-                <Key className="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  placeholder="Enter organization key"
-                  className={`w-full pl-11 pr-4 py-3 bg-slate-50 border rounded-xl text-sm outline-none transition-all ${
-                    errors.adminSecretKey
-                      ? "border-red-500 focus:ring-2 focus:ring-red-200"
-                      : "border-gray-200 focus:border-red-600 focus:bg-white"
-                  }`}
-                  {...register("adminSecretKey")}
-                />
-              </div>
-              {errors.adminSecretKey && (
-                <span className="text-red-500 text-xs mt-1 block font-medium">
-                  {errors.adminSecretKey.message}
-                </span>
-              )}
-            </div>
-          )}
-
+          
           <Button
             type="submit"
             disabled={loading}

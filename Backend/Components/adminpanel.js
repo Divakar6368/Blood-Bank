@@ -43,13 +43,13 @@ const storeinfo = async (req, res) => {
     const store = await admin
       .findOne({ userId })
       .populate("AvailableSamples")
-    //   .populate({
-    //     path: "pending",
-    //     populate: {
-    //       path: "userId sampleId", 
-    //       select: "Name emailId BloodGroupPrice",
-    //     },
-    //   })
+      .populate({
+        path: "pending",
+        populate: {
+          path: "userId sampleId", 
+          select: "Name emailId BloodGroupPrice",
+        },
+      })
       .lean();
 
     if (!store) {

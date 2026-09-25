@@ -57,6 +57,33 @@ const registeruser = async (req, res) => {
   }
 };
 
+const updateUserName=async (req,res)=>{
+  try{
+    const { Name,emailId} = req.body;
+    if (!emailId || !Name) {
+      return res.status(400).json({ message: "Name and emailId are required" });
+    }   
+   const updatedUser = await User.findOneAndUpdate(
+      { emailId: emailId },              
+      { $set: { Name: Name } },          
+      { new: true, runValidators: true } 
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found with this email" });
+    }
+    return res.status(200).json({
+      message: "User name updated successfully",
+      user: updatedUser,
+    });
+  }
+  catch(error){
+    console.error("Error updating user name:", error);
+    return res.status(500).json({ 
+      message: "Server error while updating user name",
+      error: error.message 
+    });
+  }
+}
 const loginuser = async (req, res) => {
   try {
     const { emailId, Password } = req.body;
@@ -129,6 +156,13 @@ const BeAdmin = async (req, res) => {
       role: "admin",
       Location: req.body.Location || detectedLocation,
     });
+
+    const token = jwt.sign(
+      { _id: user._id, emailId: emailId },
+      process.env.JWT_KEY,
+      { expiresIn: 60 * 60 }
+    );
+
     const reply = {
       Name: user.Name,
       emailId: user.emailId,
@@ -136,6 +170,8 @@ const BeAdmin = async (req, res) => {
       role: user.role,
       Location: user.Location,
     };
+    res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+    res.cookie("location", user.Location, { maxAge: 30 * 24 * 60 * 60 * 1000 });
     res.status(201).json({
       user: reply,
       message: "Register Successfully",
@@ -145,4 +181,5 @@ const BeAdmin = async (req, res) => {
   }
 };
 
-module.exports = { registeruser, loginuser, logoutuser, BeAdmin };
+
+module.exports = { registeruser, loginuser, logoutuser, BeAdmin,updateUserName };

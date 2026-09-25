@@ -32,7 +32,7 @@ export function Login() {
     resolver: zodResolver(loginSchema),
     defaultValues: { role: "user" },
   });
-
+  console.log(isAuthenticated);
   useEffect(() => {
     if (isAuthenticated) {
       if (user?.role === "admin") {
