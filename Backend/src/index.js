@@ -30,7 +30,7 @@ app.use('/item',bookingrouter);
 
 const InitalizeConnection=async()=>{
     try{
-        await Promise.all[main(),redisClient.connect()];
+        await Promise.all([main(),redisClient.connect()]);
         console.log("DB Connected");
         app.listen(process.env.PORT,async()=>{
             console.log("Listening at port "+process.env.PORT)
