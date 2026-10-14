@@ -12,6 +12,7 @@ const bookingrouter = require('../Routes/bookingRouter');
 
 
 
+
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({

@@ -3,8 +3,8 @@ const redisClient = createClient({
     username: 'default',
     password: process.env.REDIS_PASS,
      socket: {
-        host: 'cobweb-wash-treatment-81978.db.redis.io',
-        port: 10703
+        host: 'wren-rub-marvellous-76973.db.redis.io',
+        port: 13795
     }
 });
 module.exports=redisClient;
